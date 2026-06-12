@@ -34,6 +34,15 @@ Current `its_DomainModel` CLI changes to account for:
 - `decompile-tree`: decompiles a decision tree from XML back into LOQI/TPG for inspection. Treat it as analysis-oriented, not production-safe; the source warns that output is experimental.
 - `dict-to-loqi`: builds a LOQI model directory from CSV dictionaries plus `domain.ttl`, writes `domain.loqi`, and copies discovered tree files into the output directory.
 - `validate-domain-loqi` and merge-related flows now explicitly combine an extra LOQI domain with the base/tag domain via merge logic; when debugging merged behavior, inspect merge paths instead of assuming plain replacement.
+- LOQI tree helpers now include `lambda` definitions in the grammar. When checking tree syntax or builder behavior, inspect both `LoqiGrammar.g4` and the corresponding LOQI builder/writer code instead of assuming only `meta` and `fragment` helpers exist around `tpg`.
+
+Current `its_Reasoner` CLI changes to account for:
+
+- `reason` now supports a time limit via `--time-limit SECONDS` in addition to `--time-measure`.
+- `expression-query` / `expr-query` also supports `--time-limit SECONDS`.
+- If upstream discussion or issue text mentions `time_limit`, map that to the actual CLI flag name `--time-limit` unless current local sources show otherwise.
+- When debugging a specific TPG/tree, prefer enabling `--time-limit` to catch potential tree infinite loops or non-terminating reasoning paths earlier.
+- For production-style runs or pure reasoning-speed measurements, avoid `--time-limit` unless the task explicitly requires a safety bound, because the normal/default mode is the intended path for performance-oriented runs.
 
 ## Validation Habits
 
@@ -42,6 +51,6 @@ Current `its_DomainModel` CLI changes to account for:
 - When starting from XML, use `domain-cli decompile-tree` for inspection or migration help, but verify the produced TPG before treating it as authoritative.
 - When starting from legacy dictionaries/TTL inputs, use `domain-cli dict-to-loqi` to generate a LOQI model directory before deeper analysis or conversion work.
 - Run `reasoner-cli reason` when the task asks whether a graph/tree actually solves a situation.
-- Choose human or JSONL reasoner trace output based on the analysis task; use `--time-measure` when performance matters.
+- Choose human or JSONL reasoner trace output based on the analysis task; use `--time-limit` during TPG debugging when you need to detect possible looping behavior, but avoid it for production-style or pure speed-oriented reasoning runs unless a hard execution cap is required.
 - In TPG/LOQI tree code, watch for `merge` statements. They merge the continuation of the current branch; a `merge` without a following continuation is an error in the current builder logic.
 - If a CLI jar is not present locally, ask the user to install/build the corresponding artifact into the local Maven repository or provide the jar.

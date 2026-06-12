@@ -213,8 +213,14 @@ Options:
 - `--no-trace`: in human output, print only result and variables.
 - `-o, --export-domain OUTPUT_LOQI`: save the final specific domain after reasoning, subtracting the base domain.
 - `--time-measure`: print preparation and solve times.
+- `--time-limit SECONDS`: stop reasoning after the given number of seconds.
 - `--format human|jsonl`: default `human`.
 - `--json-trace`: with JSONL output, emit structured trace JSON instead of formatted string.
+
+Debugging note:
+
+- When investigating a specific TPG/tree, prefer setting `--time-limit` so a potentially looping tree fails fast instead of hanging indefinitely.
+- For production-style runs and clean reasoning-speed measurements, do not enable `--time-limit` by default; use it only when an explicit safety bound is part of the task.
 
 JSONL output emits events such as `result`, `variables`, branch-result exceptions, `trace`, optional metrics, reasoner output messages, and exported domain artifacts.
 
@@ -241,6 +247,7 @@ Options:
 - `--verbose`: verbose expression trace.
 - `--limit LIMIT`: maximum number of object names; non-negative.
 - `--time-measure`: print query execution time.
+- `--time-limit SECONDS`: stop query execution after the given number of seconds.
 - `--format human|jsonl`: default `human`.
 
 ## Common Recipes
@@ -254,5 +261,7 @@ java -jar "$REASONER_CLI_JAR" reason input_examples_expressions_prod specific.lo
 ```
 
 When automating, prefer `--format jsonl` and parse by the `type` field. In human mode, stack traces are printed on CLI errors; in JSONL mode, errors are emitted as JSON error events.
+
+If older notes or discussions mention `time_limit`, treat that as the current CLI option `--time-limit` unless you have newer local sources showing a different spelling.
 
 If a command crashes, do not assume user error immediately. Record the exact jar/version, command line, stack trace, and minimal input set needed to reproduce the failure, then inspect whether the failure comes from invalid input, a merge/build validation rule, or a project bug.
