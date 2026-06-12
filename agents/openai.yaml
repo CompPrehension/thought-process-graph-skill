@@ -1,0 +1,4 @@
+interface:
+  display_name: "Thought Process Graph"
+  short_description: "TPG/LOQI workflows for CompPrehension ITS"
+  default_prompt: "Use $thought-process-graph to validate and run a LOQI thought process graph."
