@@ -209,7 +209,7 @@ Options:
 - `--tag TAG`: base model tag to merge with the specific domain.
 - `--tree TREE_NAME`: decision tree name; default is the unnamed tree.
 - `--verbose`: print extra trace details, including LOQI for single operators.
-- `--debug`: include debug metadata when building `DomainSolvingModel`.
+- `--debug`: include debug metadata when building `DomainSolvingModel`; also enables partial trace collection so that if reasoning throws a `ReasoningException`, the partial decision tree trace (or partial expression trace) is printed — to `stderr` in human format, or as a `partial-trace`/`partial-expression-trace` JSONL event.
 - `--no-trace`: in human output, print only result and variables.
 - `-o, --export-domain OUTPUT_LOQI`: save the final specific domain after reasoning, subtracting the base domain.
 - `--time-measure`: print preparation and solve times.
@@ -242,13 +242,14 @@ java -jar "$REASONER_CLI_JAR" \
 Options:
 
 - `--tag TAG`: only valid with `MODEL_DIR`; merges a base tag with the specific domain.
-- `--debug`: include debug metadata when building the model.
+- `--debug`: include debug metadata when building the model; also prints a partial expression trace if `--trace` is set and the query throws a `ReasoningException`.
 - `--trace`: print expression trace.
 - `--verbose`: verbose expression trace.
 - `--limit LIMIT`: maximum number of object names; non-negative.
 - `--time-measure`: print query execution time.
 - `--time-limit SECONDS`: stop query execution after the given number of seconds.
 - `--format human|jsonl`: default `human`.
+- `--json-trace`: with JSONL output, emit structured expression trace JSON instead of a formatted string.
 
 ## Common Recipes
 

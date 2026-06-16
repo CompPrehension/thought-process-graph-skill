@@ -19,6 +19,7 @@ Use this skill for CompPrehension ITS work involving thought process graphs (`tp
 8. For trace analysis, expression traces, and trace-to-TPG/LOQI matching, read [references/trace-analysis.md](references/trace-analysis.md).
 9. For compiled XML tree structure and XML-to-TPG/LOQI matching, read [references/xml-analysis.md](references/xml-analysis.md).
 10. For finding jars, source jars, grammar files, and project code, read [references/source-discovery.md](references/source-discovery.md).
+11. For debugging TPG (or loqi - but graphs, not domain models), expressions, read [references/debugging.md](references/debugging.md).
 
 ## Project Orientation
 
@@ -39,10 +40,11 @@ Current `its_DomainModel` CLI changes to account for:
 Current `its_Reasoner` CLI changes to account for:
 
 - `reason` now supports a time limit via `--time-limit SECONDS` in addition to `--time-measure`.
-- `expression-query` / `expr-query` also supports `--time-limit SECONDS`.
+- `expression-query` / `expr-query` also supports `--time-limit SECONDS` and `--json-trace`; `--json-trace` emits the expression trace as structured JSON in JSONL output (instead of a formatted string).
 - If upstream discussion or issue text mentions `time_limit`, map that to the actual CLI flag name `--time-limit` unless current local sources show otherwise.
 - When debugging a specific TPG/tree, prefer enabling `--time-limit` to catch potential tree infinite loops or non-terminating reasoning paths earlier.
 - For production-style runs or pure reasoning-speed measurements, avoid `--time-limit` unless the task explicitly requires a safety bound, because the normal/default mode is the intended path for performance-oriented runs.
+- `--debug` on `reason` enables partial trace collection: if reasoning throws a `ReasoningException`, the CLI prints the partial trace to `stderr` (human) or as a `partial-trace`/`partial-expression-trace` JSONL event. For `expression-query`, `--debug` only produces a partial expression trace when combined with `--trace`.
 
 ## Validation Habits
 

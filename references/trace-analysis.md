@@ -92,9 +92,17 @@ Reasoner JSONL emits separate events:
 - `variables`: `value` is `finalVariableSnapshot`.
 - `exceptions`: `found` plus `value[]` entries with `result`, `exceptionName`, and `id`.
 - `trace`: if `--json-trace` is set, `value` is structured JSON; otherwise it is formatted text.
-- `reasoner-output`: debug sink messages.
+- `reasoner-output`: debug sink messages (`"level": "debug"`), including output from `debug:*` TPG procedures.
 - `metric`: optional timing events.
 - `artifact` or `service`: optional exported domain output.
+
+Partial-trace events (emitted when `--debug` is set and a `ReasoningException` is thrown):
+- `partial-trace`: partial decision tree trace collected up to the crash point; structured JSON with `--json-trace`, formatted text otherwise.
+- `partial-expression-trace`: partial expression trace; emitted for `reason --debug` when the exception carries an expression trace, or for `expression-query --debug --trace`.
+
+For `expression-query` JSONL:
+- `expression-query-result`: `objects` list of matching object names.
+- `expression-trace`: expression trace; structured JSON with `--json-trace`, formatted text otherwise.
 
 Structured trace JSON has:
 - root `branchResult`, `finalVariables`, `elements`.
@@ -133,7 +141,7 @@ So if a final node "unexpectedly" appears as an exception, inspect the tree meta
 - `isValueAnnotated`: whether the value should be displayed.
 - `children`: nested expression evaluations.
 
-CLI `expression-query --trace --format jsonl` currently emits `expression-trace` with a formatted string, not a structured JSON tree. Use `--verbose` to include operator class names plus LOQI written by `OperatorLoqiWriter`. Correlate the expression trace to TPG/LOQI by comparing the written expression text with the expression inside the relevant XML wrapper or LOQI statement.
+CLI `expression-query --trace --format jsonl` emits an `expression-trace` event. With `--json-trace`, `value` is a structured JSON tree (list of `ExpressionTrace` as JSON objects); without it, `value` is a formatted string. Use `--verbose` to include operator class names plus LOQI written by `OperatorLoqiWriter`. Correlate the expression trace to TPG/LOQI by comparing the written expression text with the expression inside the relevant XML wrapper or LOQI statement.
 
 ## Analysis Checklist
 
