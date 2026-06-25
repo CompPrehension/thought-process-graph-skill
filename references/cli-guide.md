@@ -66,6 +66,7 @@ java -jar "$DOMAIN_CLI_JAR" validate-dsm path/to/model-dir
 Options:
 
 - `--build-method LOQI|...`: build method, default `LOQI`.
+- `--debug`: skip the check for `debug:`-namespace procedures in decision trees (allows validating a model that still contains `debug:breakpoint`, `debug:trace`, etc.).
 
 ### tree-loqi-to-xml
 
