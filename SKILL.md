@@ -21,6 +21,12 @@ Use this skill for CompPrehension ITS work involving thought process graphs (`tp
 10. For finding jars, source jars, grammar files, and project code, read [references/source-discovery.md](references/source-discovery.md).
 11. For debugging thought process graphs/trees or LOQI expressions, read [references/debugging.md](references/debugging.md).
 
+## MCP Toolchain Server
+
+If `compph-toolchain-server` is available as an MCP server in the current client, prefer calling its MCP tools instead of shelling out to the wrapped CLIs for routine validation, conversion, and reasoner runs. The MCP server exposes the same toolchains through generated tools named `<module>__<method>`, such as `domain__validate-dsm`, `domain__tree-loqi-to-xml`, `domain__dict-to-loqi`, `reasoner__reason`, and `reasoner__expression-query`.
+
+Use the CLI directly when the MCP server is not configured or running, when the task specifically asks for CLI commands, when reproducing a command-line failure, or when you need behavior not exposed by the MCP schemas. Keep the CLI references below as the source for flags, artifacts, and fallback/debug workflows.
+
 ## Project Orientation
 
 If work is already happening inside one of the skill's target projects listed below, orient primarily around that project's code as opened in the current workspace. Treat those workspace sources as the first authority before searching sibling checkouts, bundled references, upstream repositories, or memory.
@@ -32,11 +38,11 @@ If work is already happening inside one of the skill's target projects listed be
 
 ## Validation Habits
 
-- Validate domain/model changes with `domain-cli validate-dsm` or `domain-cli validate-domain-loqi` when possible.
-- Validate tree LOQI by converting it with `domain-cli tree-loqi-to-xml`, preferably with `--model-dir` and `--tag` when a model context exists.
-- When starting from XML, use `domain-cli decompile-tree` for inspection or migration help, but verify the produced TPG before treating it as authoritative.
-- When starting from legacy dictionaries/TTL inputs, use `domain-cli dict-to-loqi` to generate a LOQI model directory before deeper analysis or conversion work.
-- Run `reasoner-cli reason` when the task asks whether a graph/tree actually solves a situation.
+- Validate domain/model changes with the MCP `domain__validate-dsm` / `domain__validate-domain-loqi` tools when available, or `domain-cli validate-dsm` / `domain-cli validate-domain-loqi` as a fallback.
+- Validate tree LOQI by converting it with MCP `domain__tree-loqi-to-xml` or `domain-cli tree-loqi-to-xml`, preferably with `modelDir`/`tag` or `--model-dir`/`--tag` when a model context exists.
+- When starting from XML, use MCP `domain__decompile-tree` or `domain-cli decompile-tree` for inspection or migration help, but verify the produced TPG before treating it as authoritative.
+- When starting from legacy dictionaries/TTL inputs, use MCP `domain__dict-to-loqi` or `domain-cli dict-to-loqi` to generate a LOQI model directory before deeper analysis or conversion work.
+- Run MCP `reasoner__reason` or `reasoner-cli reason` when the task asks whether a graph/tree actually solves a situation.
 - Choose human or JSONL reasoner trace output based on the analysis task; read [references/cli-guide.md](references/cli-guide.md) for current trace and timeout flags before relying on them.
 - In TPG/LOQI tree code, watch for `merge` statements. They merge the continuation of the current branch; a `merge` without a following continuation is an error in the current builder logic.
 - If a CLI jar is not present locally, ask the user to install/build the corresponding artifact into the local Maven repository or provide the jar.
