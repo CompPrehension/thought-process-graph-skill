@@ -1,5 +1,20 @@
 # CLI Guide
 
+## Table Of Contents
+
+- [its_DomainModel CLI](#its_domainmodel-cli)
+  - [validate-dsm](#validate-dsm)
+  - [tree-loqi-to-xml](#tree-loqi-to-xml)
+  - [decompile-tree](#decompile-tree)
+  - [dict-to-loqi](#dict-to-loqi)
+  - [validate-domain-loqi](#validate-domain-loqi)
+  - [domain-to-rdf](#domain-to-rdf)
+  - [rdf-to-domain-loqi](#rdf-to-domain-loqi)
+- [its_Reasoner CLI](#its_reasoner-cli)
+  - [reason](#reason)
+  - [expression-query / expr-query](#expression-query--expr-query)
+- [Common Recipes](#common-recipes)
+
 Use the latest local source before relying on this guide:
 
 - `its_DomainModel/src/main/kotlin/CLI.kt`
