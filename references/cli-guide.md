@@ -6,6 +6,7 @@
   - [validate-dsm](#validate-dsm)
   - [tree-loqi-to-xml](#tree-loqi-to-xml)
   - [decompile-tree](#decompile-tree)
+  - [discover-tree](#discover-tree)
   - [dict-to-loqi](#dict-to-loqi)
   - [validate-domain-loqi](#validate-domain-loqi)
   - [domain-to-rdf](#domain-to-rdf)
@@ -120,6 +121,35 @@ Options:
 - `--tree-name NAME`: tree name to use in the generated `tpg` header; default `ExprEval`.
 
 The current source marks this command as experimental and not production-ready. Use it to inspect or bootstrap a tree, then validate the result before trusting it.
+
+### discover-tree
+
+Search decision tree nodes by metadata (LOQI/TPG or XML, auto-detected by file extension).
+
+```bash
+java -jar "$DOMAIN_CLI_JAR" \
+  discover-tree path/to/tree.loqi \
+  --meta id=n1 \
+  --meta line=42 \
+  --format jsonl
+```
+
+Options:
+
+- `-m, --meta KEY=VALUE`: metadata search criterion; repeatable. At least one is required.
+- `--union`: combine multiple `--meta` criteria with OR instead of the default AND.
+- `--limit LIMIT`: maximum number of nodes to print; if omitted, all matches are printed.
+- `--debug`: build LOQI/TPG trees with debug metadata (`line`) even if `line` isn't among the search criteria.
+- `--children`: also show each matched node's immediate (depth-1) child nodes.
+- `--format human|jsonl`: default `human`.
+
+If `line` is used as a search key, the tree (when built from LOQI/TPG via `TreeLoqiBuilder`) is automatically built with debug metadata so `line` becomes valid, searchable metadata — `--debug` is not required in that case. `line` metadata is never available for trees loaded from XML.
+
+Matching is done by comparing each node's metadata value (its string form) against the given value; a node's metadata may hold multiple entries for the same property name across different localizations (e.g. `label` unlocalized plus `label` for `ru`), all of which are searched and printed.
+
+For each matching node, the output includes the node's concrete type (e.g. `QuestionNode`, `BranchResultNode`) and all of its metadata entries (including localized ones and `line`, when present in the built tree). JSONL output emits a `summary` event (`found`/`shown` counts) followed by one `node` event per printed node, each shaped as `{"type": "node", "nodeType": "...", "metadata": [{"name": ..., "locCode": ..., "value": ...}, ...]}`. This exact `nodeType`/`metadata` shape is reused by `reasoner-cli reason`'s `final-node` JSONL event (see below).
+
+With `--children`, each `node` event additionally carries a `children` field: `{"total": N, "descriptors": [{"id": ..., "line": ..., "skill": ...}, ...]}`. `total` counts every immediate (depth-1) child node reachable from the match; `descriptors` lists only the children that have at least one of `id`/`line`/`skill` metadata (in whichever subset is present) — children with none of those three keys are counted in `total` but omitted from `descriptors`. "Immediate" means one reasoning step away: branch/outcome targets of aggregations, questions, cycles, etc., or the direct redirect target of a `ProcedureCallNode`; `line` in a descriptor is only present when the tree was built with debug metadata (see above). In human output, this prints as an indented `Children: N total` block under the node.
 
 ### dict-to-loqi
 
@@ -238,7 +268,9 @@ Debugging note:
 - When investigating a specific TPG/tree, prefer setting `--time-limit` so a potentially looping tree fails fast instead of hanging indefinitely.
 - For production-style runs and clean reasoning-speed measurements, do not enable `--time-limit` by default; use it only when an explicit safety bound is part of the task.
 
-JSONL output emits events such as `result`, `variables`, branch-result exceptions, `trace`, optional metrics, reasoner output messages, and exported domain artifacts.
+JSONL output emits events such as `result`, `final-node`, `variables`, branch-result exceptions, `trace`, optional metrics, reasoner output messages, and exported domain artifacts.
+
+The `final-node` event carries the decision tree's terminal (`BranchResultNode`) in the same shape as `domain-cli discover-tree`'s `node` events: `{"type": "final-node", "nodeType": "BranchResultNode", "metadata": [{"name": ..., "locCode": ..., "value": ...}, ...]}`. This event is only emitted in `--format jsonl`; human output is unaffected. `line` metadata on the final node is present only when `--debug` was passed to `reason`.
 
 ### expression-query / expr-query
 
@@ -262,10 +294,13 @@ Options:
 - `--trace`: print expression trace.
 - `--verbose`: verbose expression trace.
 - `--limit LIMIT`: maximum number of object names; non-negative.
+- `--loqi`: additionally serialize each found object into LOQI (its `obj name : Class { ... }` declaration, via `DomainModel`'s LOQI writer) and print/emit it alongside the object name.
 - `--time-measure`: print query execution time.
 - `--time-limit SECONDS`: stop query execution after the given number of seconds.
 - `--format human|jsonl`: default `human`.
 - `--json-trace`: with JSONL output, emit structured expression trace JSON instead of a formatted string.
+
+With `--loqi`, human output prints each object's LOQI declaration indented beneath its name. JSONL output adds an `objectsLoqi` field to the `expression-query-result` event — `[{"name": ..., "loqi": ...}, ...]`, one entry per object in `objects`, in the same order — leaving the plain `objects` name array unchanged for existing consumers.
 
 ## Common Recipes
 

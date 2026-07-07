@@ -23,7 +23,7 @@ Use this skill for CompPrehension ITS work involving thought process graphs (`tp
 
 ## MCP Toolchain Server
 
-If `compph-toolchain-server` is available as an MCP server in the current client, prefer calling its MCP tools instead of shelling out to the wrapped CLIs for routine validation, conversion, and reasoner runs. The MCP server exposes the same toolchains through generated tools named `<module>__<method>`, such as `domain__validate-dsm`, `domain__tree-loqi-to-xml`, `domain__dict-to-loqi`, `reasoner__reason`, and `reasoner__expression-query`.
+If `compph-toolchain-server` is available as an MCP server in the current client, prefer calling its MCP tools instead of shelling out to the wrapped CLIs for routine validation, conversion, and reasoner runs. The MCP server exposes the same toolchains through generated tools named `<module>__<method>`, such as `domain__validate-dsm`, `domain__tree-loqi-to-xml`, `domain__discover-tree`, `domain__dict-to-loqi`, `reasoner__reason`, and `reasoner__expression-query`.
 
 Use the CLI directly when the MCP server is not configured or running, when the task specifically asks for CLI commands, when reproducing a command-line failure, or when you need behavior not exposed by the MCP schemas. Keep the CLI references below as the source for flags, artifacts, and fallback/debug workflows.
 
@@ -41,6 +41,7 @@ If work is already happening inside one of the skill's target projects listed be
 - Validate domain/model changes with the MCP `domain__validate-dsm` / `domain__validate-domain-loqi` tools when available, or `domain-cli validate-dsm` / `domain-cli validate-domain-loqi` as a fallback.
 - Validate tree LOQI by converting it with MCP `domain__tree-loqi-to-xml` or `domain-cli tree-loqi-to-xml`, preferably with `modelDir`/`tag` or `--model-dir`/`--tag` when a model context exists.
 - When starting from XML, use MCP `domain__decompile-tree` or `domain-cli decompile-tree` for inspection or migration help, but verify the produced TPG before treating it as authoritative.
+- To locate specific decision tree nodes (e.g. by `id`, `line`, or another metadata key), use MCP `domain__discover-tree` or `domain-cli discover-tree` instead of manually scanning LOQI/XML/TPG source.
 - When starting from legacy dictionaries/TTL inputs, use MCP `domain__dict-to-loqi` or `domain-cli dict-to-loqi` to generate a LOQI model directory before deeper analysis or conversion work.
 - Run MCP `reasoner__reason` or `reasoner-cli reason` when the task asks whether a graph/tree actually solves a situation.
 - Choose human or JSONL reasoner trace output based on the analysis task; read [references/cli-guide.md](references/cli-guide.md) for current trace and timeout flags before relying on them.
