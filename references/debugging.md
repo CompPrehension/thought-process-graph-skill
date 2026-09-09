@@ -13,19 +13,19 @@ Use this guide when a task asks to debug a thought process graph, a decision tre
 
 Before adding debug procedures, always run the reasoning with tracing enabled and read the output:
 
-```powershell
+```bash
 # Human trace — readable tree path
-java -jar $REASONER_CLI_JAR reason <MODEL_DIR> <DOMAIN_LOQI> --verbose
+java -jar "$REASONER_CLI_JAR" reason <MODEL_DIR> <DOMAIN_LOQI> --verbose
 
 # JSONL trace — machine-parseable
-java -jar $REASONER_CLI_JAR reason <MODEL_DIR> <DOMAIN_LOQI> --format jsonl --json-trace --verbose
+java -jar "$REASONER_CLI_JAR" reason <MODEL_DIR> <DOMAIN_LOQI> --format jsonl --json-trace --verbose
 ```
 
 For expression queries:
 
-```powershell
-java -jar $REASONER_CLI_JAR expression-query <MODEL_DIR> <DOMAIN_LOQI> "<QUERY>" --trace --verbose
-java -jar $REASONER_CLI_JAR expression-query <MODEL_DIR> <DOMAIN_LOQI> "<QUERY>" --trace --verbose --format jsonl --json-trace
+```bash
+java -jar "$REASONER_CLI_JAR" expression-query <MODEL_DIR> <DOMAIN_LOQI> "<QUERY>" --trace --verbose
+java -jar "$REASONER_CLI_JAR" expression-query <MODEL_DIR> <DOMAIN_LOQI> "<QUERY>" --trace --verbose --format jsonl --json-trace
 ```
 
 See [trace-analysis.md](trace-analysis.md) for how to read and correlate trace output with TPG/LOQI nodes.
@@ -36,8 +36,8 @@ When the CLI fails with a Java exception, add `--debug` to get the partial trace
 
 For `reason`:
 
-```powershell
-java -jar $REASONER_CLI_JAR reason <MODEL_DIR> <DOMAIN_LOQI> --debug --verbose
+```bash
+java -jar "$REASONER_CLI_JAR" reason <MODEL_DIR> <DOMAIN_LOQI> --debug --verbose
 ```
 
 `--debug` activates two things simultaneously:
@@ -48,8 +48,8 @@ java -jar $REASONER_CLI_JAR reason <MODEL_DIR> <DOMAIN_LOQI> --debug --verbose
 
 For `expression-query`, `--debug` only prints a partial expression trace if `--trace` is also set:
 
-```powershell
-java -jar $REASONER_CLI_JAR expression-query <MODEL_DIR> <DOMAIN_LOQI> "<QUERY>" --debug --trace --verbose
+```bash
+java -jar "$REASONER_CLI_JAR" expression-query <MODEL_DIR> <DOMAIN_LOQI> "<QUERY>" --debug --trace --verbose
 ```
 
 Without `--trace`, `--debug` only adds debug metadata to the model and has no partial-trace effect on expression-query crashes.

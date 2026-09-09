@@ -33,16 +33,16 @@ Use JSONL output when:
 
 Useful commands:
 
-```powershell
-java -jar $REASONER_CLI_JAR reason <MODEL_DIR> <DOMAIN_LOQI> --verbose
-java -jar $REASONER_CLI_JAR reason <MODEL_DIR> <DOMAIN_LOQI> --format jsonl --json-trace --verbose
+```bash
+java -jar "$REASONER_CLI_JAR" reason <MODEL_DIR> <DOMAIN_LOQI> --verbose
+java -jar "$REASONER_CLI_JAR" reason <MODEL_DIR> <DOMAIN_LOQI> --format jsonl --json-trace --verbose
 ```
 
 For expression traces:
 
-```powershell
-java -jar $REASONER_CLI_JAR expression-query <MODEL_DIR> <DOMAIN_LOQI> "<QUERY>" --trace --verbose
-java -jar $REASONER_CLI_JAR expression-query <MODEL_DIR> <DOMAIN_LOQI> "<QUERY>" --trace --verbose --format jsonl
+```bash
+java -jar "$REASONER_CLI_JAR" expression-query <MODEL_DIR> <DOMAIN_LOQI> "<QUERY>" --trace --verbose
+java -jar "$REASONER_CLI_JAR" expression-query <MODEL_DIR> <DOMAIN_LOQI> "<QUERY>" --trace --verbose --format jsonl
 ```
 
 ## Decision Tree Trace Shape

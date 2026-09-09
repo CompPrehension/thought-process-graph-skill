@@ -26,46 +26,7 @@ Current local entrypoints:
 - DomainModel main class: `CLIKt`
 - Reasoner main class: `misc.CLIKt`
 
-Do not assume fixed versions. First discover the runnable jars:
-
-Linux/WSL/macOS:
-
-```bash
-DOMAIN_CLI_JAR="$(find its_DomainModel/target "$HOME/.m2/repository" -name 'its_DomainModel-*-all.jar' 2>/dev/null | sort -V | tail -n 1)"
-REASONER_CLI_JAR="$(find its_Reasoner/target "$HOME/.m2/repository" -name 'its_Reasoner-*-all.jar' 2>/dev/null | sort -V | tail -n 1)"
-
-java -jar "$DOMAIN_CLI_JAR" --help
-java -jar "$REASONER_CLI_JAR" --help
-```
-
-Windows PowerShell:
-
-```powershell
-$domainRoots = @("its_DomainModel\target", "$env:USERPROFILE\.m2\repository") | Where-Object { Test-Path $_ }
-$reasonerRoots = @("its_Reasoner\target", "$env:USERPROFILE\.m2\repository") | Where-Object { Test-Path $_ }
-$DOMAIN_CLI_JAR = Get-ChildItem $domainRoots -Recurse -File -Filter "its_DomainModel-*-all.jar" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime | Select-Object -Last 1 -ExpandProperty FullName
-$REASONER_CLI_JAR = Get-ChildItem $reasonerRoots -Recurse -File -Filter "its_Reasoner-*-all.jar" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime | Select-Object -Last 1 -ExpandProperty FullName
-java -jar $DOMAIN_CLI_JAR --help
-java -jar $REASONER_CLI_JAR --help
-```
-
-If a runnable jar is absent, use Maven from the project checkout:
-
-Linux/WSL/macOS:
-
-```bash
-cd its_DomainModel && mvn exec:java -Dexec.args="--help"
-cd its_Reasoner && mvn exec:java -Dexec.args="--help"
-```
-
-Windows PowerShell:
-
-```powershell
-Push-Location its_DomainModel; mvn exec:java "-Dexec.args=--help"; Pop-Location
-Push-Location its_Reasoner; mvn exec:java "-Dexec.args=--help"; Pop-Location
-```
-
-Use `$DOMAIN_CLI_JAR` and `$REASONER_CLI_JAR` in PowerShell examples the same way Bash examples use `"$DOMAIN_CLI_JAR"` and `"$REASONER_CLI_JAR"`.
+Discover the runnable jars first and keep them in `DOMAIN_CLI_JAR` / `REASONER_CLI_JAR`; the commands are in [source-discovery.md](source-discovery.md) (section "CLI Jars"). Every example below assumes those two variables are set. If no jar exists, the same section shows how to run from a checkout with Maven.
 
 ## its_DomainModel CLI
 
@@ -73,7 +34,7 @@ Command name: `domain-cli`.
 
 ### validate-dsm
 
-Validate a `DomainSolvingModel` directory containing files such as `domain.loqi`, `tag_*.loqi`, and `tree_*.xml` or `tree_*.loqi`.
+Validate a `DomainSolvingModel` directory containing files such as `domain.loqi`, `tag_*.loqi`, and graph files (`<name>.tpg`, `tree_*.xml`, or the deprecated `tree_*.loqi`).
 
 ```bash
 java -jar "$DOMAIN_CLI_JAR" validate-dsm path/to/model-dir
@@ -307,9 +268,10 @@ With `--loqi`, human output prints each object's LOQI declaration indented benea
 Validate a model, convert a tree, then run it:
 
 ```bash
-java -jar "$DOMAIN_CLI_JAR" validate-dsm input_examples_expressions_prod
-java -jar "$DOMAIN_CLI_JAR" tree-loqi-to-xml tree.loqi --model-dir input_examples_expressions_prod -o tree.xml
-java -jar "$REASONER_CLI_JAR" reason input_examples_expressions_prod specific.loqi --format jsonl --json-trace
+MODEL_DIR=path/to/model-dir          # contains domain.loqi, tag_*.loqi, *.tpg / tree_*.xml
+java -jar "$DOMAIN_CLI_JAR" validate-dsm "$MODEL_DIR"
+java -jar "$DOMAIN_CLI_JAR" tree-loqi-to-xml "$MODEL_DIR/main.tpg" --model-dir "$MODEL_DIR" -o /tmp/main.xml
+java -jar "$REASONER_CLI_JAR" reason "$MODEL_DIR" path/to/situation.loqi --format jsonl --json-trace
 ```
 
 When automating, prefer `--format jsonl` and parse by the `type` field. In human mode, stack traces are printed on CLI errors; in JSONL mode, errors are emitted as JSON error events.
