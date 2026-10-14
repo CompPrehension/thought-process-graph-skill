@@ -60,7 +60,9 @@ Without `--trace`, `--debug` only adds debug metadata to the model and has no pa
 
 Debug procedures live in the `debug` namespace. They are defined in `its_DomainModel` and implemented in `its_Reasoner`.
 
-Each procedure can be used in two ways — as a **statement** (`callStmt` in `stmts`) or as an **expression** (`callExpr` in `exp`). There is no special wrapper syntax: the call form `debug:name(args)` is the same in both contexts.
+Procedures can be used in two ways — as a **statement** (`callStmt` in `stmts`) or as an **expression** (`callExpr` in `exp`). There is no special wrapper syntax: the call form `debug:name(args)` is the same in both contexts. In expressions (including `{ ...; ... }` blocks, even when the value is unused) only procedures with a return type are valid: `debug:print`, `debug:trace`, `debug:dump`, `debug:breakpoint`. `debug:assert` has no return type and is statement-only; inside an expression validation fails with `Procedure with no return type can't be used as expression`.
+
+The production check (`validate-dsm` without `--debug` rejects `debug:` procedures) covers both statement calls and debug calls inside expressions, including `with (...)` actions and `conclude: subcall(...)` arguments.
 
 As a statement, it appears between semicolons in a TPG branch body:
 
@@ -141,7 +143,7 @@ Source: `its_DomainModel/…/procedures/DebugBreakpointDef.kt`, `its_Reasoner/�
 
 ### `debug:assert(condition, "message")`
 
-Throws `ReasoningException` if `condition` is `false`. Use it to encode invariants that must hold at a specific execution point.
+Throws `ReasoningException` if `condition` is `false`. Use it to encode invariants that must hold at a specific execution point. Statement-only: it cannot appear inside an expression or block (see above).
 
 ```loqi
 debug:assert($x.someProperty == someEnum:Value, "expected someEnum:Value");
@@ -149,6 +151,11 @@ ask($x.otherProperty) { ... }
 ```
 
 Source: `its_DomainModel/…/procedures/AssertPointDef.kt`, `its_Reasoner/…/procedures/AssertPointImpl.kt`.
+
+## Known Behavior Changes And Library Switches
+
+- **SIM:AND semantics** (its_Reasoner `3.0.0-rc.7`+): `NULL` if any branch is `NULL` (or there are no branches), otherwise `ERROR` if any branch is `ERROR`, otherwise `CORRECT`. Older versions ignored `NULL` branches (`CORRECT` + `NULL` gave `CORRECT`). When comparing traces with results from older versions, differences on AND nodes with null-capable branches are expected, not a regression.
+- **Evaluation cache** (its_Reasoner `3.0.0-rc.2`+): while a read-only expression is evaluated, `ReadOnlyEvaluationCache` indexes relationship links and memoizes search subexpressions. It is on by default (`ReasoningOptions.useEvaluationCache = true`). Collecting an expression trace (`debug:trace`, `reason --debug`, `expression-query --trace`) turns off only the memoization so the trace stays complete; the relationship indexes are still used. To rule the cache out when a result looks suspicious, rerun the same input without it and compare: CLI `--no-evaluation-cache` on `reason` / `expression-query` (its_Reasoner `3.0.0-rc.9`+), MCP `reasoner__reason` / `reasoner__expression-query` with `evaluationCache: false`, or `ReasoningOptions(useEvaluationCache = false)` in library code.
 
 ## Step 4 — Read The Source When Behavior Is Unclear
 

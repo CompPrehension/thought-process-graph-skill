@@ -114,6 +114,8 @@ XML metadata is encoded as attributes whose names start with `_`:
 
 `DecisionTreeXMLBuilder.collectMetadata()` reads these attributes into `MetaData`. `DecisionTreeXMLWriter.withMetadataOf()` writes metadata back with the same `_` prefix convention.
 
+LOQI metadata aliases (`as ID`, `-[ID]->`) become an `alias` attribute (`_alias="ID"`) unless the alias starts with `_`. After `decompile-tree`, synthetic `meta for _nN` / `_mN` blocks are normal: they carry metadata of elements without a usable unique `alias`. The TPG ↔ XML round trip preserves outcome order, non-boolean `ask` outcomes and conclusion metadata; treat differences in these as converter bugs.
+
 Metadata can exist on nodes, `ThoughtBranch`, `Outcome`, tuple parts, tuple part outcomes, and find-error categories. When searching for a reasoner trace node, first search for `_id="<nodeId>"`, then widen to related edge or branch metadata.
 
 ## Trace-To-XML Matching

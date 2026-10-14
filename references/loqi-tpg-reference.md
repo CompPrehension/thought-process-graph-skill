@@ -120,6 +120,20 @@ fragment Name(args...) {
 }
 ```
 
+Call a fragment as a statement with the mandatory `fragment` namespace: `fragment:Name(X);`. Backticks around `fragment` are accepted but not needed. A bare `Name(X)` is resolved as a procedure, not a fragment. Arguments must be tree variable names.
+
+A fragment call may carry its own metadata block before `;` (only `[...]`, not `as ID`), also after full redirection branches:
+
+```loqi
+fragment:Name(X) [ skill = "division" ; RU.explanation = "..." ; ];
+fragment:Name(X) { error -> out; } [ skill = "division" ; ];
+```
+
+- Call metadata is added to every `conclude` of the inlined body, including nested fragment calls; conclusions substituted by the call's own redirections keep only their own metadata.
+- A key set both on a fragment conclusion and on the call is a build error (`Metadata property ... is set both in fragment ... and at its call`); keys are compared regardless of localization.
+- Metadata on a non-fragment procedure call is a build error (`Call metadata is supported only for fragments`).
+- Metadata templates inside a fragment (and `meta for` blocks attached to fragment nodes) have formal argument references (`${A}`, `$A`) renamed to the caller's variables per inlined copy; `$$name` context variables are untouched. An unparseable `${...}` is a build error.
+
 Lambdas are reusable expression helpers:
 
 ```loqi
@@ -131,6 +145,10 @@ Metadata helpers can appear around a tree declaration:
 ```loqi
 meta for SomeName [ key = "value" ]
 ```
+
+A metadata alias (`as ID`, `-[ID]->`, `out[ID]`) is also written into the model as `alias = "ID"`, unless `meta for ID` sets an explicit `alias`. Aliases starting with `_` are service handles and do not produce `alias`; `decompile-tree` / `TreeLoqiWriter` emits them as `_nN` (from `TEMPLATING_ID`) and `_mN` (synthetic) when the element's own `alias` is unusable or already taken by a copy with different metadata.
+
+Procedure calls inside expressions (`callExpr`, including `{ ...; ... }` blocks) must have a return type: `subcall`, `subcall_mut`, `debug:print`, `debug:trace`, `debug:dump`, `debug:breakpoint` are fine; `eval` and `debug:assert` fail validation with `Procedure with no return type can't be used as expression` and may only be used as graph statements.
 
 ## Grammar Checks
 

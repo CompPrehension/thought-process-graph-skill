@@ -221,6 +221,7 @@ Options:
 - `-o, --export-domain OUTPUT_LOQI`: save the final specific domain after reasoning, subtracting the base domain.
 - `--time-measure`: print preparation and solve times.
 - `--time-limit SECONDS`: stop reasoning after the given number of seconds.
+- `--no-evaluation-cache`: evaluate expressions without `ReadOnlyEvaluationCache` (its_Reasoner `3.0.0-rc.9`+); what the cache does: [debugging.md](debugging.md), "Known Behavior Changes And Library Switches".
 - `--format human|jsonl`: default `human`.
 - `--json-trace`: with JSONL output, emit structured trace JSON instead of formatted string.
 
@@ -258,6 +259,7 @@ Options:
 - `--loqi`: additionally serialize each found object into LOQI (its `obj name : Class { ... }` declaration, via `DomainModel`'s LOQI writer) and print/emit it alongside the object name.
 - `--time-measure`: print query execution time.
 - `--time-limit SECONDS`: stop query execution after the given number of seconds.
+- `--no-evaluation-cache`: same as for `reason`.
 - `--format human|jsonl`: default `human`.
 - `--json-trace`: with JSONL output, emit structured expression trace JSON instead of a formatted string.
 
