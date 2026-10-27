@@ -1,0 +1,11 @@
+// Domain declarations shared by all tasks: classes, enums, properties, relationships.
+
+enum State { unevaluated, evaluated }
+
+class Element {
+    obj prop state : State;
+}
+
+class Operator : Element {
+    rel hasOperand(Element);
+}

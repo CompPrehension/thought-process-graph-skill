@@ -2,7 +2,9 @@
 
 Use this guide when an agent must inspect `its_Reasoner` decision-tree traces, expression traces, or trace output and correlate the executed path with the original TPG/LOQI graph.
 
-Before relying on class names or CLI behavior, find the current `its_Reasoner` source jar through [source-discovery.md](source-discovery.md). Do not hard-code a Maven version; use the artifact that is current for the workspace or consuming project.
+Read an existing trace directly; routine trace analysis does not require local jars. When implementation details or CLI behavior need confirmation, use the project's identified `its_Reasoner` checkout or matching artifact sources through [source-discovery.md](source-discovery.md). Do not hard-code a Maven version or assume that a local jar matches a remote MCP server.
+
+This guide also supports explaining a successful run; it is not limited to debugging. For ordinary result/value interpretation, [model-execution.md](model-execution.md) may be sufficient. When the user supplied a trace, analyze it as given; the commands below are only for obtaining a trace when you need a new one. With MCP, the `reason` result already contains the trace (`verbose`, `jsonTrace` parameters; see [debugging.md](debugging.md) for MCP/CLI equivalents).
 
 ## Source Files To Inspect
 

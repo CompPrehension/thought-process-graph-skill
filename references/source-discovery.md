@@ -1,8 +1,30 @@
 # Source Discovery
 
-Prefer the freshest local Maven artifact when available, because workspace checkouts can lag behind the installed dependency used by another project. Do not pin versions in instructions: versions can change. Search by package/group and artifact names, then choose the relevant/current artifact from what exists locally.
+Use this reference when a bundled-grammar fallback, local CLI runtime lookup, or implementation investigation requires finding sources or artifacts. An available MCP operation can be called directly from its description and schema; an unspecified version does not require source discovery before the call.
 
-This is the single place in the skill that describes how to find jars and sources. Other references reuse the `DOMAIN_CLI_JAR` and `REASONER_CLI_JAR` variables defined here.
+This reference describes how to find jars and sources. CLI examples in other references reuse the `DOMAIN_CLI_JAR` and `REASONER_CLI_JAR` variables defined here.
+
+For simply running a supplied model, [model-execution.md](model-execution.md) is enough.
+
+## Project Context First
+
+1. Follow the user's paths and links and the project's instructions, README, build configuration, and dependency declarations for ITS projects, TPG model directories, `its_DomainModel`, and `its_Reasoner`. Inspect the likely files first; do not start with a repository-wide or drive-wide search.
+2. If working inside `its_DomainModel`, `its_Reasoner`, or `its_QuestionGen`, use that checkout for implementation analysis. If a consuming project identifies a checkout or dependency version, use sources and artifacts matching that context rather than an unrelated newer installation. A repository URL identifies a project; it does not imply a local checkout exists.
+3. If the required location is missing, check known local checkouts and installed sources/artifacts in the local Maven repository, narrowing by project/group/artifact name. Broaden incrementally only if these locations do not resolve the task. Discover only the required module; a DomainModel operation does not require a Reasoner jar.
+4. For implementation analysis or unexplained behavior, locate matching sources. Use component versions already supplied by the project or tool metadata; do not infer a remote parser's version from the newest local jar. Routine remote execution does not require this investigation.
+
+## Grammar Selection: Bundled First, Matching Sources If Needed
+
+Most graph/domain work involves reading or writing LOQI. Start with [the bundled grammar](../assets/LoqiGrammar.g4), reading its header and the rules relevant to the task rather than the entire file. The header records the `its_DomainModel` version from which it was copied; it is a versioned snapshot, not a claim about every installed runtime.
+
+1. Compare that header with the target `its_DomainModel` version if provided by the project/build configuration or runtime metadata. For MCP, the relevant parser version is the server's DomainModel dependency, not the locally installed Reasoner version. A tool schema describes its arguments and capabilities; it does not necessarily identify that dependency's version. Use information already available, without requiring a version search for ordinary execution.
+2. When versions match and the required constructs are covered, use the snapshot for syntax lookup. When versions differ, the snapshot remains an orientation aid, but compatibility is unconfirmed. If the construct is missing, the snapshot does not explain the input, or the target parser disagrees, locate and analyze the target version's grammar and relevant builders. For a definitive claim about another version's syntax, confirm it against those sources.
+3. Use the `its_DomainModel` checkout identified by the project context first. If none is identified or available, find installed source jars matching the target dependency through the Source Jars procedure below. Grammar locations are:
+   - Checkout: `src/main/antlr4/its/model/definition/loqi/LoqiGrammar.g4` under `its_DomainModel`.
+   - Source jar: `its/model/definition/loqi/LoqiGrammar.g4`.
+4. If the target version is unknown, use the snapshot provisionally and validate with the actual MCP/CLI parser before claiming acceptance. If matching sources or runtime are unavailable, state the version/validation limit; do not claim that the snapshot proves compatibility.
+
+Useful entry rules are `model` / `topDecl` for domain declarations, `fullTreeDecl` / `treeDecl` for a graph, and `fullExp` / `exp` for expressions. Read dependent rules as needed. Grammar describes syntax; builder validation, type rules, writer support, and runtime behavior may require matching source analysis even when parsing succeeds.
 
 ## Compatibility Baseline
 
@@ -16,19 +38,18 @@ Artifacts, group `com.github.CompPrehension` (older installs may sit under `Max-
 - `its_Reasoner`
 - `its_QuestionGen`
 
-Use the version only after discovering it from an existing POM, source jar, or binary jar.
+Use the version only after discovering it from an existing POM, source jar, or binary jar. Prefer the version identified by the project; otherwise choose the newest installed artifact compatible with the task.
 
 ## CLI Jars
 
-Runnable CLI jars are the `*-all.jar` artifacts. Discover them once per session and reuse the variables in every command:
+Runnable CLI jars are the `*-all.jar` artifacts. For each required module, inspect the identified checkout's `target/` first, then the relevant artifact directory in the local Maven repository. For example, list DomainModel candidates in the current Maven group:
 
 ```bash
-DOMAIN_CLI_JAR="$(find its_DomainModel/target "$HOME/.m2/repository" -name 'its_DomainModel-*-all.jar' 2>/dev/null | sort -V | tail -n 1)"
-REASONER_CLI_JAR="$(find its_Reasoner/target "$HOME/.m2/repository" -name 'its_Reasoner-*-all.jar' 2>/dev/null | sort -V | tail -n 1)"
-
-java -jar "$DOMAIN_CLI_JAR" --help
-java -jar "$REASONER_CLI_JAR" --help
+find "$HOME/.m2/repository/com/github/CompPrehension/its_DomainModel" \
+  -name 'its_DomainModel-*-all.jar' 2>/dev/null
 ```
+
+Use the configured local repository if it differs from `$HOME/.m2/repository`. For Reasoner, substitute `its_Reasoner`; check the older `Max-Person` group only if needed.
 
 Rules for choosing:
 
@@ -42,20 +63,22 @@ Rules for choosing:
 (cd its_Reasoner && mvn -q exec:java -Dexec.args="--help")
 ```
 
+After selection, set `DOMAIN_CLI_JAR` and/or `REASONER_CLI_JAR` to the chosen absolute jar paths, run `java -jar "$DOMAIN_CLI_JAR" --help` or `java -jar "$REASONER_CLI_JAR" --help` for the required module, and reuse the selection. Do not automatically choose the largest version filename over the project's required artifact. Use actual checkout paths for the Maven fallback above; ask for a build/install or jar only if no usable local option exists.
+
 `its_QuestionGen` has no CLI in this skill's scope; use its library jar (`its_QuestionGen-*.jar`) and sources.
 
 If the active local Maven repository belongs to a Windows user profile mounted in WSL, also try that path, for example `/mnt/c/Users/<USER>/.m2/repository`.
 
 ## Source Jars
 
-Use targeted searches. Avoid broad full-drive scans unless necessary.
+Use checkout sources when identified by the project context. Otherwise look for a source jar matching the selected dependency or runtime artifact. Search the relevant artifact directory first, for example:
 
 ```bash
-find "$HOME/.m2/repository" -path '*its_DomainModel*' -name '*sources.jar'
-find "$HOME/.m2/repository" -path '*its_Reasoner*' -name '*sources.jar'
-find "$HOME/.m2/repository" -path '*its_QuestionGen*' -name '*sources.jar'
-find its_DomainModel/target its_Reasoner/target its_QuestionGen/target -name '*sources.jar' 2>/dev/null
+find "$HOME/.m2/repository/com/github/CompPrehension/its_DomainModel" \
+  -name '*sources.jar' 2>/dev/null
 ```
+
+Substitute the required artifact and configured Maven repository. Check the identified checkout's `target/` or older Maven group if needed; avoid searching all installed dependencies by default.
 
 List and extract only what is needed:
 
@@ -74,7 +97,7 @@ If no sources jar exists for an artifact, `unzip -l` the binary jar to learn pac
 
 ## Workspace Checkouts
 
-If source jars are absent, inspect workspace repositories:
+Use workspace checkouts identified by the project context first. If no location was supplied and installed artifacts did not resolve the task, check known workspace roots for these repository names:
 
 ```text
 its_DomainModel/

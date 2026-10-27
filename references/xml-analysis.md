@@ -2,7 +2,7 @@
 
 Use this guide when an agent must inspect compiled XML thought-process trees/graphs and correlate them with a TPG/LOQI file or reasoner trace.
 
-Before relying on class names or XML behavior, find the current `its_DomainModel` source jar through [source-discovery.md](source-discovery.md). Do not hard-code a Maven version; use the artifact that is current for the workspace or consuming project.
+When class names or XML behavior need confirmation, use the project's identified `its_DomainModel` checkout or matching artifact sources through [source-discovery.md](source-discovery.md). Routine MCP inspection does not require a local source jar. Do not hard-code a Maven version or assume that a local jar matches a remote MCP server.
 
 ## Source Files To Inspect
 
@@ -128,7 +128,7 @@ For trace-to-XML matching:
 5. Use traversal position inside `ThoughtBranch`, aggregation branch, while iteration, or redirect.
 6. For exceptions, inspect `BranchResultNode` metadata: `_exception`, `_exceptionName`, `_id`.
 
-If XML and LOQI disagree, re-run LOQI-to-XML conversion and inspect `DecisionTreeXMLBuilder`/`DecisionTreeXMLWriter` from the current `.m2` source jar before assuming the XML shape by memory.
+If XML and LOQI disagree, re-run LOQI-to-XML conversion and inspect `DecisionTreeXMLBuilder`/`DecisionTreeXMLWriter` from the matching checkout or artifact sources before assuming the XML shape by memory.
 
 ## Analysis Checklist
 

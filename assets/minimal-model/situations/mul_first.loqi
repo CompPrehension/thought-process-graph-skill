@@ -1,0 +1,6 @@
+// a + b * c, the student picks `*`.
+obj a : Element { state = State:evaluated; }
+obj b : Element { state = State:evaluated; }
+obj c : Element { state = State:evaluated; }
+var X = obj mul : Operator { state = State:unevaluated; hasOperand(b); hasOperand(c); }
+obj plus : Operator { state = State:unevaluated; hasOperand(a); hasOperand(mul); }

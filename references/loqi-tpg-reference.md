@@ -1,9 +1,8 @@
 # LOQI And Thought Process Graph Reference
 
-Use this as a compact orientation only. For exact syntax, read the latest `LoqiGrammar.g4` from local/current sources through [source-discovery.md](source-discovery.md):
+For creating, modifying, redesigning, or methodologically reviewing a graph and its domain data, read [modeling-principles.md](modeling-principles.md). Routine syntax lookup can go directly to the grammar.
 
-- Workspace source: `its_DomainModel/src/main/antlr4/its/model/definition/loqi/LoqiGrammar.g4`
-- Source jar path inside current artifacts: `its/model/definition/loqi/LoqiGrammar.g4`
+Use this as a compact orientation next to [the bundled LoqiGrammar.g4](../assets/LoqiGrammar.g4), which is authoritative for its header version. Version mismatches are handled in [source-discovery.md](source-discovery.md), section "Grammar Selection".
 
 ## Top-Level LOQI Domain Declarations
 
@@ -72,7 +71,7 @@ Statements can be:
 - `merge`
 - `while (exp) ...`
 - `agg and|or|mutex|hyp ...`
-- `cycle aggregation (exp) with Type item ...`
+- `cycle and|or|mutex|hyp (selectorExp) with Type Item ...` (the selector sees the candidate as `$Item`, the body as tree variable `Item`)
 - `var name: Type = exp ...`
 - `ask (...) ...`
 - namespace call statements with optional redirected branches.
@@ -154,11 +153,11 @@ Procedure calls inside expressions (`callExpr`, including `{ ...; ... }` blocks)
 
 When asked whether LOQI code is syntactically correct:
 
-1. Find the latest grammar in sources or source jar.
+1. Start with the bundled grammar's header and relevant rules. Follow the version check and source fallback in [source-discovery.md](source-discovery.md) if the snapshot is unsuitable or the target parser disagrees. Confirm version-sensitive claims using matching sources when the target version differs.
 2. Inspect the relevant parser builder (`DomainLoqiBuilder`, `TreeLoqiBuilder`, or `OperatorLoqiBuilder`) if grammar alone is ambiguous.
 3. If the syntax touches `fragment`, `lambda`, `merge`, or expression precedence, also inspect the corresponding writer code before assuming a parseable construct is fully supported end-to-end.
-4. Prefer CLI validation/conversion over visual inspection:
-   - domain files: `domain-cli validate-domain-loqi`
-   - model directories: `domain-cli validate-dsm`
-   - tree LOQI: `domain-cli tree-loqi-to-xml --model-dir ...`
-   - expression snippets: `reasoner-cli expression-query` when the expression must be executable against a domain.
+4. Prefer validation/conversion through the selected MCP tool or CLI over visual inspection:
+   - domain files: `validate-domain-loqi`
+   - model directories: `validate-dsm`
+   - tree LOQI: `tree-loqi-to-xml` with model context when available
+   - expression snippets: `expression-query` when the expression must be executable against a domain.

@@ -1,5 +1,7 @@
 # CLI Guide
 
+Read the section for the command you need; the recipes at the end are examples, not a required sequence. For ordinary model execution and result interpretation, start with [model-execution.md](model-execution.md).
+
 ## Table Of Contents
 
 - [its_DomainModel CLI](#its_domainmodel-cli)
@@ -16,7 +18,7 @@
   - [expression-query / expr-query](#expression-query--expr-query)
 - [Common Recipes](#common-recipes)
 
-Use the latest local source before relying on this guide:
+Use the CLI's `--help` to confirm commands and flags. If help or behavior is still unclear, inspect the source matching the project's checkout or selected artifact:
 
 - `its_DomainModel/src/main/kotlin/CLI.kt`
 - `its_Reasoner/src/main/kotlin/misc/CLI.kt`
@@ -26,7 +28,7 @@ Current local entrypoints:
 - DomainModel main class: `CLIKt`
 - Reasoner main class: `misc.CLIKt`
 
-Discover the runnable jars first and keep them in `DOMAIN_CLI_JAR` / `REASONER_CLI_JAR`; the commands are in [source-discovery.md](source-discovery.md) (section "CLI Jars"). Every example below assumes those two variables are set. If no jar exists, the same section shows how to run from a checkout with Maven.
+For CLI execution, discover the required runnable jar and keep it in `DOMAIN_CLI_JAR` or `REASONER_CLI_JAR`; the procedure is in [source-discovery.md](source-discovery.md) (section "CLI Jars"). Examples below assume the variable for the relevant module is set. If no jar exists, the same section shows how to run from a checkout with Maven. For MCP execution, use the tool schema instead of translating these flags directly; no local jar variables are required.
 
 ## its_DomainModel CLI
 
@@ -232,7 +234,7 @@ Debugging note:
 
 JSONL output emits events such as `result`, `final-node`, `variables`, branch-result exceptions, `trace`, optional metrics, reasoner output messages, and exported domain artifacts.
 
-The `final-node` event carries the decision tree's terminal (`BranchResultNode`) in the same shape as `domain-cli discover-tree`'s `node` events: `{"type": "final-node", "nodeType": "BranchResultNode", "metadata": [{"name": ..., "locCode": ..., "value": ...}, ...]}`. This event is only emitted in `--format jsonl`; human output is unaffected. `line` metadata on the final node is present only when `--debug` was passed to `reason`.
+The `final-node` event carries the node that determined the result (`trace.resultingNode`): a `BranchResultNode`, or, when the last aggregation or iteration produced the result, that aggregation node (the concrete error is then in the `exceptions` event). It uses the same shape as `domain-cli discover-tree`'s `node` events: `{"type": "final-node", "nodeType": "BranchResultNode", "metadata": [{"name": ..., "locCode": ..., "value": ...}, ...]}`. This event is only emitted in `--format jsonl`; human output is unaffected. `line` metadata on the final node is present only when `--debug` was passed to `reason`.
 
 ### expression-query / expr-query
 

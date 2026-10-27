@@ -1,0 +1,4 @@
+// a + b, the student picks `+` a second time.
+obj a : Element { state = State:evaluated; }
+obj b : Element { state = State:evaluated; }
+var X = obj plus : Operator { state = State:evaluated; hasOperand(a); hasOperand(b); }

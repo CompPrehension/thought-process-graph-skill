@@ -1,0 +1,19 @@
+// Verification graph: may the student evaluate operator X now?
+// main.tpg is the default (unnamed) graph of the model directory.
+tpg main(X: Operator) {
+    // Question with a redirected answer: `true` continues below, `false` is handled inline.
+    ask (X.state == State:unevaluated) out true else {
+        conclude: error [ id = "already_evaluated"; exception = true; exceptionName = "AlreadyEvaluated"; ];
+    };
+
+    // Iteration with SIM:AND: every operand of X must already have a value.
+    // The selector sees the candidate as context variable `$Op`; the body sees it as tree variable `Op`.
+    cycle and (X=>hasOperand($Op)) with Element Op {
+        ask (Op.state == State:evaluated) out true else {
+            conclude: error [ id = "operand_not_evaluated"; exception = true; exceptionName = "OperandNotEvaluated"; ];
+        };
+        conclude: correct;
+    } out true;
+
+    conclude: correct [ skill = "operands_before_operator"; ];
+}
